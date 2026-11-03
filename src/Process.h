@@ -6,7 +6,6 @@
 #include <unordered_map>
 
 enum STATUS {
-    RUNNING,
     SLEEPING,
     READY,
     TERMINATED
@@ -64,7 +63,8 @@ private:
     std::vector<std::string> print_logs;
     std::unordered_map<std::string, uint16_t> variables;
     STATUS status;
-    uint8_t sleep_ticks_remaining;
+    uint8_t sleeps;
+    int core_id = -1; // take inspo from linux rahh
 
     const Instruction *fetch();
     void execute(const Instruction &instruction);

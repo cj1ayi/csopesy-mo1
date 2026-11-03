@@ -1,8 +1,9 @@
 #include "Process.h"
 #include <algorithm>
 #include <stdexcept>
+#include <cassert>
 
-Process::Process(std::string name, std::vector<Instruction> instructions) : name(name), call_stack({Frame{instructions, 0, 0}}), status(READY), sleep_ticks_remaining(0) {}
+Process::Process(std::string name, std::vector<Instruction> instructions) : name(name), call_stack({Frame{instructions, 0, 0}}), status(READY), sleeps(0) {}
 
 const Instruction *Process::fetch() {
     while (!call_stack.empty()) {
@@ -61,7 +62,7 @@ void Process::execute(const Instruction &instruction) {
         }
         case SLEEP:
             if (arg.sleep_arg > 0) {
-                sleep_ticks_remaining = arg.sleep_arg;
+                sleeps = arg.sleep_arg;
                 status = SLEEPING;
             }
             break;
@@ -74,28 +75,17 @@ void Process::execute(const Instruction &instruction) {
         }
 }
 
-STATUS Process::tick() {    
-    switch (status) {
-        case SLEEPING:
-            if (--sleep_ticks_remaining == 0)
-                status = fetch() ? READY : TERMINATED;
-            break;
-        case TERMINATED:
-            break;
-        case READY:
-            status = RUNNING;
-            [[fallthrough]];
-        case RUNNING:
-            if (const Instruction *instruction = fetch()) {
-                execute(*instruction);
-                call_stack.back().pc++;
-                // have to check for RUNNING bc
-                // execute() can change the status
-                if (status == RUNNING && !fetch())
-                    status = TERMINATED;
-            } else
-                status = TERMINATED;
-            break;
-        }
+STATUS Process::tick() {
+    assert(status == READY);
+    if (const Instruction *instruction = fetch())
+    {
+        execute(*instruction);
+        if (!call_stack.empty())
+            call_stack.back().pc++;
+    }
+
+    if (status != SLEEPING && !fetch())
+        status = TERMINATED;
+
     return status;
 }
