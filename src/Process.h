@@ -58,18 +58,19 @@ struct Frame {
 
 class Process {
 private:
-    std::string name;
     std::vector<Frame> call_stack;
-    std::vector<std::string> print_logs;
     std::unordered_map<std::string, uint16_t> variables;
-    STATUS status;
-    uint8_t sleeps;
-    int core_id = -1; // take inspo from linux rahh
 
     const Instruction *fetch();
     void execute(const Instruction &instruction);
 
 public:
+    std::string name;
+    std::vector<std::string> print_logs;
+    STATUS status;
+    uint8_t sleeps;
+    int core_id = -1; // take inspo from linux rahh
+
     Process(std::string name, std::vector<Instruction> instructions);
     STATUS tick();
 };
