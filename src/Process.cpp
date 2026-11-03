@@ -1,10 +1,12 @@
 #include "Process.h"
 #include <algorithm>
-#include <stdexcept>
 #include <cassert>
 #include <chrono>
+#include <stdexcept>
 
-Process::Process(int pid, std::string name, std::vector<Instruction> instructions) : call_stack({Frame{instructions, 0, 0}}), pid(pid), name(name), status(READY), sleeps(0), loc(count_loc(instructions)) {}
+Process::Process(int pid, std::string name, std::vector<Instruction> instructions)
+    : call_stack({Frame{instructions, 0, 0}}), pid(pid), name(name), status(READY), sleeps(0),
+      loc(count_loc(instructions)) {}
 
 const Instruction *Process::fetch() {
     while (!call_stack.empty()) {
@@ -15,8 +17,7 @@ const Instruction *Process::fetch() {
                 current_frame.pc = 0;
             else {
                 call_stack.pop_back();
-                if (!call_stack.empty())
-                    call_stack.back().pc++;
+                if (!call_stack.empty()) call_stack.back().pc++;
             }
             continue;
         }
@@ -40,13 +41,11 @@ const Instruction *Process::fetch() {
 void Process::execute(const Instruction &instruction) {
     const auto &op = instruction.opcode;
     const auto &arg = instruction.argument;
-    switch (op)
-    {
-    case PRINT:
-    {
-        print_logs.push_back("Hello world from " + name + "!");
-        break;
-    }
+    switch (op) {
+        case PRINT: {
+            print_logs.push_back("Hello world from " + name + "!");
+            break;
+        }
         case DECLARE:
             variables[arg.var_name] = arg.value;
             break;
@@ -55,8 +54,7 @@ void Process::execute(const Instruction &instruction) {
             int32_t var2_value = (arg.arg_config & 0b10) ? variables[arg.var2_name] : arg.var2_value;
             int32_t var3_value = (arg.arg_config & 0b01) ? variables[arg.var3_name] : arg.var3_value;
 
-            if (op == SUBTRACT)
-                var3_value = -var3_value;
+            if (op == SUBTRACT) var3_value = -var3_value;
 
             variables[arg.var1_name] = static_cast<uint16_t>(std::clamp(var2_value + var3_value, 0, (1 << 16) - 1));
             break;
@@ -73,22 +71,19 @@ void Process::execute(const Instruction &instruction) {
         default:
             // Handle unknown opcode
             throw std::runtime_error("Unknown opcode encountered");
-        }
+    }
 }
 
 STATUS Process::tick() {
     assert(status == READY);
-    if (const Instruction *instruction = fetch())
-    {
+    if (const Instruction *instruction = fetch()) {
         execute(*instruction);
         ++executes;
 
-        if (!call_stack.empty())
-            call_stack.back().pc++;
+        if (!call_stack.empty()) call_stack.back().pc++;
     }
 
-    if (status != SLEEPING && !fetch())
-        status = TERMINATED;
+    if (status != SLEEPING && !fetch()) status = TERMINATED;
 
     return status;
 }

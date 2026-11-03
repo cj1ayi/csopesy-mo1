@@ -2,23 +2,12 @@
 
 #include <cstdint>
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
-enum STATUS {
-    SLEEPING,
-    READY,
-    TERMINATED
-};
+enum STATUS { SLEEPING, READY, TERMINATED };
 
-enum OPCODE {
-    PRINT,
-    DECLARE,
-    ADD,
-    SUBTRACT,
-    SLEEP,
-    FOR
-};
+enum OPCODE { PRINT, DECLARE, ADD, SUBTRACT, SLEEP, FOR };
 
 struct Instruction;
 
@@ -30,7 +19,8 @@ struct Argument {
     uint16_t value = 0;
 
     // ADD / SUBTRACT
-    int arg_config = 0; // 00 for both immediates, 01 for var1 imm, 10 for var2 imm, 11 for both vars
+    int arg_config = 0; // 00 for both immediates, 01 for var1 imm, 10 for var2
+                        // imm, 11 for both vars
     std::string var1_name;
     std::string var2_name;
     uint16_t var2_value = 0;
@@ -57,7 +47,7 @@ struct Frame {
 };
 
 class Process {
-private:
+  private:
     static uint64_t count_loc(const std::vector<Instruction> &instructions);
 
     std::vector<Frame> call_stack;
@@ -66,7 +56,7 @@ private:
     const Instruction *fetch();
     void execute(const Instruction &instruction);
 
-public:
+  public:
     int pid;
     std::string name;
     std::vector<std::string> print_logs;
