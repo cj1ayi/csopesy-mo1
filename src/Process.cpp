@@ -2,8 +2,9 @@
 #include <algorithm>
 #include <stdexcept>
 #include <cassert>
+#include <chrono>
 
-Process::Process(std::string name, std::vector<Instruction> instructions) : call_stack({Frame{instructions, 0, 0}}), name(name), status(READY), sleeps(0), loc(count_loc(instructions)) {}
+Process::Process(int pid, std::string name, std::vector<Instruction> instructions) : call_stack({Frame{instructions, 0, 0}}), pid(pid), name(name), status(READY), sleeps(0), loc(count_loc(instructions)) {}
 
 const Instruction *Process::fetch() {
     while (!call_stack.empty()) {

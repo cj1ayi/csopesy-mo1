@@ -67,6 +67,7 @@ private:
     void execute(const Instruction &instruction);
 
 public:
+    int pid;
     std::string name;
     std::vector<std::string> print_logs;
     STATUS status;
@@ -76,6 +77,8 @@ public:
     const uint64_t loc;
     uint64_t executes = 0;
 
-    Process(std::string name, std::vector<Instruction> instructions);
+    const std::chrono::system_clock::time_point created_at = std::chrono::system_clock::now();
+
+    Process(int pid, std::string name, std::vector<Instruction> instructions);
     STATUS tick();
 };
