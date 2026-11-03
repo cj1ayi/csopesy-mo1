@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <cassert>
 
-Process::Process(std::string name, std::vector<Instruction> instructions) : name(name), call_stack({Frame{instructions, 0, 0}}), status(READY), sleeps(0) {}
+Process::Process(std::string name, std::vector<Instruction> instructions) : name(name), call_stack({Frame{instructions, 0, 0}}), status(READY), sleeps(0), loc(count_loc(instructions)) {}
 
 const Instruction *Process::fetch() {
     while (!call_stack.empty()) {
@@ -80,6 +80,8 @@ STATUS Process::tick() {
     if (const Instruction *instruction = fetch())
     {
         execute(*instruction);
+        ++executes;
+
         if (!call_stack.empty())
             call_stack.back().pc++;
     }
@@ -88,4 +90,15 @@ STATUS Process::tick() {
         status = TERMINATED;
 
     return status;
+}
+
+uint64_t Process::count_loc(const std::vector<Instruction> &instructions) {
+    uint64_t loc = 0;
+    for (const auto &instruction : instructions) {
+        if (instruction.opcode == FOR)
+            loc += static_cast<uint64_t>(instruction.argument.loop_count) * count_loc(instruction.argument.body);
+        else
+            ++loc;
+    }
+    return loc;
 }

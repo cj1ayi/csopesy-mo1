@@ -42,7 +42,7 @@ struct Argument {
 
     // FOR
     std::vector<Instruction> body;
-    uint16_t loop_count = 0;
+    uint32_t loop_count = 0;
 };
 
 struct Instruction {
@@ -52,12 +52,14 @@ struct Instruction {
 
 struct Frame {
     std::vector<Instruction> instructions;
-    uint16_t pc;
+    uint64_t pc;
     int64_t loop_count;
 };
 
 class Process {
 private:
+    static uint64_t count_loc(const std::vector<Instruction> &instructions);
+
     std::vector<Frame> call_stack;
     std::unordered_map<std::string, uint16_t> variables;
 
@@ -70,6 +72,9 @@ public:
     STATUS status;
     uint8_t sleeps;
     int core_id = -1; // take inspo from linux rahh
+
+    const uint64_t loc;
+    uint64_t executes = 0;
 
     Process(std::string name, std::vector<Instruction> instructions);
     STATUS tick();
