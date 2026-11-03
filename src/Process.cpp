@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <cassert>
 
-Process::Process(std::string name, std::vector<Instruction> instructions) : name(name), call_stack({Frame{instructions, 0, 0}}), status(READY), sleeps(0), loc(count_loc(instructions)) {}
+Process::Process(std::string name, std::vector<Instruction> instructions) : call_stack({Frame{instructions, 0, 0}}), name(name), status(READY), sleeps(0), loc(count_loc(instructions)) {}
 
 const Instruction *Process::fetch() {
     while (!call_stack.empty()) {
