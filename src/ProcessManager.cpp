@@ -8,7 +8,9 @@
 ProcessManager::ProcessManager(const Config &config) : config(config), generator(config.min_ins, config.max_ins) {}
 
 std::shared_ptr<Process> ProcessManager::create_process(const std::string &name) {
-    if (find_process(name)) return nullptr;
+    std::lock_guard<std::mutex> lock(mtx);
+
+    if (_find_process(name)) return nullptr;
 
     auto process = std::make_shared<Process>(next_pid++, name, generator.generate());
     processes.push_back(process);
@@ -17,12 +19,21 @@ std::shared_ptr<Process> ProcessManager::create_process(const std::string &name)
 }
 
 std::shared_ptr<Process> ProcessManager::find_process(const std::string &name) {
+    std::lock_guard<std::mutex> lock(mtx);
+    return _find_process(name);
+}
+
+std::shared_ptr<Process> ProcessManager::_find_process(const std::string &name) {
     auto it = name_to_process.find(name);
-    if (it != name_to_process.end() && it->second->status != TERMINATED) { return it->second; }
-    return nullptr;
+
+    if (it == name_to_process.end() || it->second->status == TERMINATED) return nullptr;
+
+    return it->second;
 }
 
 std::string ProcessManager::status_report() {
+    std::lock_guard<std::mutex> lock(mtx);
+
     uint32_t cores_used = 0;
     for (const auto &process : processes)
         if (process->status != TERMINATED && process->core_id != -1) ++cores_used;

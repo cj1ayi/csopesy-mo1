@@ -5,6 +5,7 @@
 #include "ProgramGenerator.h"
 
 #include <memory>
+#include <mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -24,4 +25,8 @@ class ProcessManager {
     std::vector<std::shared_ptr<Process>> processes;
     std::unordered_map<std::string, std::shared_ptr<Process>> name_to_process;
     int next_pid = 1;
+
+    std::mutex mtx; // for processes and name_to_process
+
+    std::shared_ptr<Process> _find_process(const std::string &name);
 };
