@@ -18,7 +18,7 @@ void Scheduler::tick() {
 std::unique_lock<std::mutex> Scheduler::pause() { return std::unique_lock<std::mutex>(tick_mtx); }
 
 void Scheduler::wake_sleepers() {
-    auto wheel_pos = ticks % sleep_wheel.size();
+    const auto wheel_pos = ticks % sleep_wheel.size();
 
     auto &wake_now = sleep_wheel[wheel_pos];
     for (const auto &process : wake_now) {
@@ -35,7 +35,7 @@ void Scheduler::run_cores() {
     for (auto &core : cores) {
         if (!core.process) continue;
 
-        auto process = core.process;
+        const auto process = core.process;
         STATUS status = READY;
         if (process->busywait_left > 0) {
             --process->busywait_left;

@@ -31,13 +31,13 @@ class Console {
     std::string next_batch_name();
     void tick_loop();
 
-    void print_header();
+    static void print_header();
     void initialize();
     void screen(const std::vector<std::string> &args);
-    void report_util();
-    std::string status_report(); // shared by screen -ls and report-util
+    void report_util() const;
+    std::string status_report() const; // shared by screen -ls and report-util
     std::string format_status_report(const std::vector<ProcessSnapshot> &snapshot) const;
 
-    void attach(const std::shared_ptr<Process> &process);
-    void print_process_smi(const Process &process);
+    static void attach(const Process &process);
+    static void print_process_smi(const Process &process);
 };

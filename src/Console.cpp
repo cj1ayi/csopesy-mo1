@@ -12,15 +12,15 @@
 #include <stdexcept>
 
 namespace {
-const char *PROMPT = "root:\\> ";
-const char *CONFIG_PATH = "config.txt";
-const char *LOG_PATH = "csopesy-log.txt";
+constexpr const char *PROMPT = "root:\\> ";
+constexpr const char *CONFIG_PATH = "config.txt";
+constexpr const char *LOG_PATH = "csopesy-log.txt";
 
 // nothing abt this in the spec...
 constexpr auto TICK_INTERVAL = std::chrono::microseconds(100);
 
-const char *DEVELOPERS[] = {"Billones, Francis", "Nacasabog, Joshua", "Santiago, Juan Ramon", "Tan, Roberta"};
-const char *LAST_UPDATED = "11-04-2026";
+constexpr const char *DEVELOPERS[] = {"Billones, Francis", "Nacasabog, Joshua", "Santiago, Juan Ramon", "Tan, Roberta"};
+constexpr const char *LAST_UPDATED = "11-04-2026";
 
 std::vector<std::string> split(const std::string &line) {
     std::istringstream in(line);
@@ -48,7 +48,7 @@ void Console::run() {
 
     std::string line;
     while (std::cout << PROMPT && std::getline(std::cin, line)) {
-        auto args = split(line);
+        const auto args = split(line);
         if (args.empty()) continue;
         const auto &command = args[0];
 
@@ -89,7 +89,7 @@ void Console::print_header() {
     std::cout << "----------------------------------------\n";
     std::cout << "Welcome to CSOPESY Emulator!\n\n";
     std::cout << "Developers:\n";
-    for (const char *developer : DEVELOPERS) std::cout << developer << "\n";
+    for (const char *const developer : DEVELOPERS) std::cout << developer << "\n";
     std::cout << "\nLast updated: " << LAST_UPDATED << "\n";
     std::cout << "----------------------------------------\n\n";
 }
@@ -124,17 +124,17 @@ void Console::screen(const std::vector<std::string> &args) {
 
     const auto &name = args[2];
     if (args[1] == "-s") {
-        auto process = spawn(name);
+        const auto process = spawn(name);
         if (!process)
             std::cout << "Process " << name << " already exists.\n";
         else
-            attach(process);
+            attach(*process);
     } else {
-        auto process = process_manager->find_process(name);
+        const auto process = process_manager->find_process(name);
         if (!process)
             std::cout << "Process " << name << " not found.\n";
         else
-            attach(process);
+            attach(*process);
     }
 }
 
@@ -160,7 +160,7 @@ void Console::tick_loop() {
     }
 }
 
-std::string Console::status_report() {
+std::string Console::status_report() const {
     std::vector<ProcessSnapshot> snapshot;
     {
         auto paused = scheduler->pause();
@@ -195,7 +195,7 @@ std::string Console::format_status_report(const std::vector<ProcessSnapshot> &sn
     return out.str();
 }
 
-void Console::report_util() {
+void Console::report_util() const {
     std::ofstream log(LOG_PATH);
     if (!log) {
         std::cout << "Could not write " << LOG_PATH << "\n";
@@ -205,19 +205,19 @@ void Console::report_util() {
     std::cout << "Report generated at " << std::filesystem::absolute(LOG_PATH).string() << "!\n";
 }
 
-void Console::attach(const std::shared_ptr<Process> &process) {
+void Console::attach(const Process &process) {
     clear_screen();
-    print_process_smi(*process);
+    print_process_smi(process);
 
     std::string line;
     while (std::cout << PROMPT && std::getline(std::cin, line)) {
-        auto args = split(line);
+        const auto args = split(line);
         if (args.empty()) continue;
 
         if (args[0] == "exit") break;
 
         if (args[0] == "process-smi")
-            print_process_smi(*process);
+            print_process_smi(process);
         else
             std::cout << "Unknown command: " << args[0] << "\n";
     }

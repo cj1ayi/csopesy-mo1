@@ -14,12 +14,12 @@ std::string unquote(const std::string &s) {
 }
 
 uint64_t parse_in_range(const std::string &key, const std::string &raw, const uint64_t lo, const uint64_t hi) {
-    bool all_digits =
+    const bool all_digits =
         !raw.empty() && std::all_of(raw.begin(), raw.end(), [](unsigned char c) { return std::isdigit(c); });
     if (!all_digits || raw.size() > 19)
         throw std::runtime_error(key + " must be a non-negative integer, got \"" + raw + "\"");
 
-    uint64_t value = std::stoull(raw);
+    const uint64_t value = std::stoull(raw);
     if (value < lo || value > hi)
         throw std::runtime_error(key + " must be in [" + std::to_string(lo) + ", " + std::to_string(hi) + "], got " +
                                  raw);

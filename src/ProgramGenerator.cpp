@@ -4,7 +4,7 @@
 #include <limits>
 #include <stdexcept>
 
-ProgramGenerator::ProgramGenerator(uint64_t min_ins, uint64_t max_ins, uint64_t seed)
+ProgramGenerator::ProgramGenerator(const uint64_t min_ins, const uint64_t max_ins, const uint64_t seed)
     : rng(seed), min_ins(min_ins), max_ins(max_ins) {
     if (min_ins == 0 || min_ins > max_ins) throw std::invalid_argument("require 1 <= min_ins <= max_ins");
 }
@@ -14,12 +14,12 @@ std::vector<Instruction> ProgramGenerator::generate() { return gen(rand_in(min_i
 std::vector<Instruction> ProgramGenerator::gen(uint64_t budget, const int depth) {
     std::vector<Instruction> out;
     while (budget > 0) {
-        bool can_loop = depth < MAX_FOR_DEPTH && budget >= 1;
-        auto opcode = static_cast<OPCODE>(rand_in(PRINT, can_loop ? FOR : SLEEP));
+        const bool can_loop = depth < MAX_FOR_DEPTH && budget >= 1;
+        const auto opcode = static_cast<OPCODE>(rand_in(PRINT, can_loop ? FOR : SLEEP));
         if (opcode == FOR) {
             // loop count k >= 1 and body size b >= 1 with k * b <= budget
-            uint64_t k = rand_in(1, budget);
-            uint64_t b = rand_in(1, budget / k);
+            const uint64_t k = rand_in(1, budget);
+            const uint64_t b = rand_in(1, budget / k);
 
             Instruction instruction{FOR, {}};
             instruction.argument.loop_count = static_cast<uint32_t>(k);

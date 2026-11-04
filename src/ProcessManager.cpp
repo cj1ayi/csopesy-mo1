@@ -13,13 +13,13 @@ std::shared_ptr<Process> ProcessManager::create_process(const std::string &name)
     return process;
 }
 
-std::shared_ptr<Process> ProcessManager::find_process(const std::string &name) {
+std::shared_ptr<Process> ProcessManager::find_process(const std::string &name) const {
     std::lock_guard<std::mutex> lock(mtx);
     return _find_process(name);
 }
 
-std::shared_ptr<Process> ProcessManager::_find_process(const std::string &name) {
-    auto it = name_to_process.find(name);
+std::shared_ptr<Process> ProcessManager::_find_process(const std::string &name) const {
+    const auto it = name_to_process.find(name);
 
     if (it == name_to_process.end()) { return nullptr; }
 
@@ -30,7 +30,7 @@ std::shared_ptr<Process> ProcessManager::_find_process(const std::string &name) 
     return p;
 }
 
-std::vector<ProcessSnapshot> ProcessManager::snapshot() {
+std::vector<ProcessSnapshot> ProcessManager::snapshot() const {
     std::lock_guard<std::mutex> lock(mtx);
 
     std::vector<ProcessSnapshot> result;

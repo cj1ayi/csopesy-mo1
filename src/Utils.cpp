@@ -5,7 +5,7 @@
 #include <sstream>
 
 std::string format_time(const std::chrono::system_clock::time_point &tp) {
-    std::time_t t = std::chrono::system_clock::to_time_t(tp);
+    const std::time_t t = std::chrono::system_clock::to_time_t(tp);
     std::tm local{};
 #ifdef _WIN32
     localtime_s(&local, &t);

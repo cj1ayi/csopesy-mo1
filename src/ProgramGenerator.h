@@ -17,11 +17,11 @@ class ProgramGenerator {
 
   private:
     std::mt19937 rng;
-    uint64_t min_ins, max_ins;
+    const uint64_t min_ins, max_ins;
 
-    std::vector<Instruction> gen(uint64_t budget, const int depth);
-    Instruction fill_instruction(const OPCODE opcode);
+    std::vector<Instruction> gen(uint64_t budget, int depth);
+    Instruction fill_instruction(OPCODE opcode);
 
-    uint64_t rand_in(const uint64_t lo, const uint64_t hi);
+    uint64_t rand_in(uint64_t lo, uint64_t hi);
     std::string random_var();
 };

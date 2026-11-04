@@ -11,7 +11,7 @@
 #include <vector>
 
 struct ProcessSnapshot {
-    std::shared_ptr<Process> process; // for the fields that never change
+    std::shared_ptr<const Process> process; // for the fields that never change
     STATUS status;
     int core_id;
     uint64_t executes;
@@ -21,10 +21,10 @@ class ProcessManager {
   public:
     explicit ProcessManager(const Config &config);
 
-    std::shared_ptr<Process> create_process(const std::string &name); // nullptr if the name is taken
-    std::shared_ptr<Process> find_process(const std::string &name);   // nullptr if missing or finished
+    std::shared_ptr<Process> create_process(const std::string &name);     // nullptr if the name is taken
+    std::shared_ptr<Process> find_process(const std::string &name) const; // nullptr if missing or finished
 
-    std::vector<ProcessSnapshot> snapshot();
+    std::vector<ProcessSnapshot> snapshot() const;
 
   private:
     ProgramGenerator generator;
@@ -32,7 +32,7 @@ class ProcessManager {
     std::unordered_map<std::string, std::shared_ptr<Process>> name_to_process;
     int next_pid = 1;
 
-    std::mutex mtx; // for processes and name_to_process
+    mutable std::mutex mtx; // for processes and name_to_process
 
-    std::shared_ptr<Process> _find_process(const std::string &name);
+    std::shared_ptr<Process> _find_process(const std::string &name) const;
 };

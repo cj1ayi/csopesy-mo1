@@ -26,8 +26,8 @@ class Process {
     void execute(const Instruction &instruction);
 
   public:
-    int pid;
-    std::string name;
+    const int pid;
+    const std::string name;
     std::vector<std::string> print_logs; // need mutex
     STATUS status;                       // need mutex
     uint8_t sleeps;                      // need mutex
@@ -40,7 +40,7 @@ class Process {
 
     const std::chrono::system_clock::time_point created_at = std::chrono::system_clock::now();
 
-    Process(int pid, std::string name, std::vector<Instruction> instructions);
+    Process(int pid, std::string name, const std::vector<Instruction> &instructions);
     STATUS tick();
 
     mutable std::mutex mtx;

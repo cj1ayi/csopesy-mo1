@@ -4,9 +4,10 @@
 #include <cassert>
 #include <chrono>
 #include <stdexcept>
+#include <utility>
 
-Process::Process(int pid, std::string name, std::vector<Instruction> instructions)
-    : call_stack({Frame{instructions, 0, 0}}), pid(pid), name(name), status(READY), sleeps(0),
+Process::Process(const int pid, std::string name, const std::vector<Instruction> &instructions)
+    : call_stack({Frame{instructions, 0, 0}}), pid(pid), name(std::move(name)), status(READY), sleeps(0),
       loc(count_loc(instructions)) {}
 
 const Instruction *Process::fetch() {
@@ -54,7 +55,7 @@ void Process::execute(const Instruction &instruction) {
             break;
         case SUBTRACT:
         case ADD: {
-            int32_t var2_value = (arg.arg_config & 0b10) ? variables[arg.var2_name] : arg.var2_value;
+            const int32_t var2_value = (arg.arg_config & 0b10) ? variables[arg.var2_name] : arg.var2_value;
             int32_t var3_value = (arg.arg_config & 0b01) ? variables[arg.var3_name] : arg.var3_value;
 
             if (op == SUBTRACT) var3_value = -var3_value;
@@ -80,7 +81,7 @@ void Process::execute(const Instruction &instruction) {
 STATUS Process::tick() {
     std::lock_guard<std::mutex> lock(mtx);
     assert(status == READY);
-    if (const Instruction *instruction = fetch()) {
+    if (const Instruction *const instruction = fetch()) {
         execute(*instruction);
         ++executes;
 
