@@ -3,7 +3,10 @@
 #include "Config.h"
 #include "Process.h"
 
+#include <array>
+#include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <memory>
 #include <mutex>
 #include <queue>
@@ -33,7 +36,9 @@ class Scheduler {
   private:
     std::vector<Core> cores;
     std::queue<std::shared_ptr<Process>> ready;
-    std::queue<std::shared_ptr<Process>> sleeping;
+    std::array<std::vector<std::shared_ptr<Process>>, std::numeric_limits<decltype(Argument::sleep_arg)>::max()>
+        sleep_wheel; // indexed by wake-up tick % WHEEL_SIZE
+    uint64_t ticks = 0;
     std::mutex ready_mtx;
     std::mutex tick_mtx;
 
