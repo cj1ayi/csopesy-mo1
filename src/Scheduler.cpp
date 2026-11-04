@@ -41,11 +41,11 @@ void Scheduler::run_cores() {
 
         auto process = core.process;
         STATUS status = READY;
-        if (core.busywait_left > 0) {
-            --core.busywait_left;
+        if (process->busywait_left > 0) {
+            --process->busywait_left;
         } else {
             status = process->tick();
-            core.busywait_left = config.delay_per_exec;
+            process->busywait_left = config.delay_per_exec;
         }
         ++core.ticks;
 
@@ -79,7 +79,6 @@ void Scheduler::dispatch() {
             next->core_id = static_cast<int>(id);
         }
         core.process = next;
-        core.busywait_left = 0;
         core.ticks = 0;
     }
 }
