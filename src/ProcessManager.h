@@ -6,14 +6,12 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
-class Scheduler {
+class ProcessManager {
   public:
-    explicit Scheduler(const Config &config);
-
-    void start_batch(); // scheduler-start
-    void stop_batch();  // scheduler-stop
+    explicit ProcessManager(const Config &config);
 
     std::shared_ptr<Process> create_process(const std::string &name); // nullptr if the name is taken
     std::shared_ptr<Process> find_process(const std::string &name);   // nullptr if missing or finished

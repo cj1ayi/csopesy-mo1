@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Config.h"
-#include "Scheduler.h"
+#include "ProcessManager.h"
 
 #include <memory>
 #include <string>
@@ -12,7 +12,7 @@ class Console {
     void run();
 
   private:
-    std::unique_ptr<Scheduler> scheduler; // null until "initialize" succeeds
+    std::unique_ptr<ProcessManager> process_manager; // null until "initialize" succeeds
 
     void print_header();
     void initialize();

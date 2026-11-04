@@ -1,4 +1,5 @@
 #include "Process.h"
+#include "Utils.h"
 #include <algorithm>
 #include <cassert>
 #include <chrono>
@@ -43,7 +44,8 @@ void Process::execute(const Instruction &instruction) {
     const auto &arg = instruction.argument;
     switch (op) {
         case PRINT: {
-            print_logs.push_back("Hello world from " + name + "!");
+            print_logs.push_back(format_time(std::chrono::system_clock::now()) + " Core:" + std::to_string(core_id) +
+                                 " \"Hello world from " + name + "!\"");
             break;
         }
         case DECLARE:

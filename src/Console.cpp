@@ -47,7 +47,7 @@ void Console::run() {
             continue;
         }
 
-        if (!scheduler) {
+        if (!process_manager) {
             std::cout << "Please run \"initialize\" first.\n";
             continue;
         }
@@ -55,10 +55,10 @@ void Console::run() {
         if (command == "screen")
             screen(args);
         else if (command == "scheduler-start") {
-            scheduler->start_batch();
+            // TODO: start generating batch processes
             std::cout << "Scheduler started generating processes.\n";
         } else if (command == "scheduler-stop") {
-            scheduler->stop_batch();
+            // TODO: stop generating batch processes
             std::cout << "Scheduler stopped generating processes.\n";
         } else if (command == "report-util")
             report_util();
@@ -83,20 +83,20 @@ void Console::print_header() {
 }
 
 void Console::initialize() {
-    if (scheduler) {
+    if (process_manager) {
         std::cout << "Already initialized.\n";
         return;
     }
 
     try {
-        scheduler = std::make_unique<Scheduler>(Config::load(CONFIG_PATH));
+        process_manager = std::make_unique<ProcessManager>(Config::load(CONFIG_PATH));
         std::cout << "Initialized using " << CONFIG_PATH << ".\n";
     } catch (const std::exception &e) { std::cout << "Failed to initialize: " << e.what() << "\n"; }
 }
 
 void Console::screen(const std::vector<std::string> &args) {
     if (args.size() == 2 && args[1] == "-ls") {
-        std::cout << scheduler->status_report();
+        std::cout << process_manager->status_report();
         return;
     }
 
@@ -107,13 +107,13 @@ void Console::screen(const std::vector<std::string> &args) {
 
     const auto &name = args[2];
     if (args[1] == "-s") {
-        auto process = scheduler->create_process(name);
+        auto process = process_manager->create_process(name);
         if (!process)
             std::cout << "Process " << name << " already exists.\n";
         else
             attach(process);
     } else {
-        auto process = scheduler->find_process(name);
+        auto process = process_manager->find_process(name);
         if (!process)
             std::cout << "Process " << name << " not found.\n";
         else
@@ -127,7 +127,7 @@ void Console::report_util() {
         std::cout << "Could not write " << LOG_PATH << "\n";
         return;
     }
-    log << scheduler->status_report();
+    log << process_manager->status_report();
     std::cout << "Report generated at " << std::filesystem::absolute(LOG_PATH).string() << "!\n";
 }
 

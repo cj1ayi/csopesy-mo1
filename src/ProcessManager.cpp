@@ -1,17 +1,13 @@
-#include "Scheduler.h"
+#include "ProcessManager.h"
 
 #include "Utils.h"
 
 #include <iomanip>
 #include <sstream>
 
-Scheduler::Scheduler(const Config &config) : config(config), generator(config.min_ins, config.max_ins) {}
+ProcessManager::ProcessManager(const Config &config) : config(config), generator(config.min_ins, config.max_ins) {}
 
-void Scheduler::start_batch() {}
-
-void Scheduler::stop_batch() {}
-
-std::shared_ptr<Process> Scheduler::create_process(const std::string &name) {
+std::shared_ptr<Process> ProcessManager::create_process(const std::string &name) {
     if (find_process(name)) return nullptr;
 
     auto process = std::make_shared<Process>(next_pid++, name, generator.generate());
@@ -20,13 +16,13 @@ std::shared_ptr<Process> Scheduler::create_process(const std::string &name) {
     return process;
 }
 
-std::shared_ptr<Process> Scheduler::find_process(const std::string &name) {
+std::shared_ptr<Process> ProcessManager::find_process(const std::string &name) {
     auto it = name_to_process.find(name);
     if (it != name_to_process.end() && it->second->status != TERMINATED) { return it->second; }
     return nullptr;
 }
 
-std::string Scheduler::status_report() {
+std::string ProcessManager::status_report() {
     uint32_t cores_used = 0;
     for (const auto &process : processes)
         if (process->status != TERMINATED && process->core_id != -1) ++cores_used;
