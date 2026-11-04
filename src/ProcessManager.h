@@ -10,6 +10,13 @@
 #include <unordered_map>
 #include <vector>
 
+struct ProcessSnapshot {
+    std::shared_ptr<Process> process; // for the fields that never change
+    STATUS status;
+    int core_id;
+    uint64_t executes;
+};
+
 class ProcessManager {
   public:
     explicit ProcessManager(const Config &config);
@@ -17,10 +24,10 @@ class ProcessManager {
     std::shared_ptr<Process> create_process(const std::string &name); // nullptr if the name is taken
     std::shared_ptr<Process> find_process(const std::string &name);   // nullptr if missing or finished
 
-    std::string status_report(); // shared by screen -ls and report-util
+    // hold Scheduler::pause() while calling this, or the core assignments won't add up
+    std::vector<ProcessSnapshot> snapshot();
 
   private:
-    Config config;
     ProgramGenerator generator;
     std::vector<std::shared_ptr<Process>> processes;
     std::unordered_map<std::string, std::shared_ptr<Process>> name_to_process;

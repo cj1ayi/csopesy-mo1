@@ -23,6 +23,9 @@ class Scheduler {
     void add(const std::shared_ptr<Process> &process);
     void tick();
 
+    // no tick runs while the returned lock is held, so process state stays consistent across processes
+    std::unique_lock<std::mutex> pause();
+
   protected:
     const Config config;
 
@@ -33,6 +36,7 @@ class Scheduler {
     std::queue<std::shared_ptr<Process>> ready;
     std::queue<std::shared_ptr<Process>> sleeping;
     std::mutex ready_mtx;
+    std::mutex tick_mtx;
 
     void wake_sleepers();
     void run_cores();
