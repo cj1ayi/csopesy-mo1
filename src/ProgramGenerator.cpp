@@ -1,8 +1,8 @@
 #include "ProgramGenerator.h"
 
-#include <algorithm>
 #include <limits>
 #include <stdexcept>
+#include <utility>
 
 ProgramGenerator::ProgramGenerator(const uint64_t min_ins, const uint64_t max_ins, const uint64_t seed)
     : rng(seed), min_ins(min_ins), max_ins(max_ins) {

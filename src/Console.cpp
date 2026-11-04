@@ -4,12 +4,12 @@
 
 #include <chrono>
 #include <cstdlib>
+#include <exception>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <stdexcept>
 
 namespace {
 constexpr const char *PROMPT = "root:\\> ";

@@ -7,8 +7,7 @@
 #include <utility>
 
 Process::Process(const int pid, std::string name, const std::vector<Instruction> &instructions)
-    : call_stack({Frame{instructions, 0, 0}}), pid(pid), name(std::move(name)), status(READY), sleeps(0),
-      loc(count_loc(instructions)) {}
+    : call_stack({Frame{instructions, 0, 0}}), pid(pid), name(std::move(name)), loc(count_loc(instructions)) {}
 
 const Instruction *Process::fetch() {
     while (!call_stack.empty()) {

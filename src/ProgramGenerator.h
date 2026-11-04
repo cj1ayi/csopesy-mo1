@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <random>
+#include <string>
 #include <vector>
 
 class ProgramGenerator {

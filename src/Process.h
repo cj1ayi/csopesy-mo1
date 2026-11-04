@@ -29,8 +29,8 @@ class Process {
     const int pid;
     const std::string name;
     std::vector<std::string> print_logs; // need mutex
-    STATUS status;                       // need mutex
-    uint8_t sleeps;                      // need mutex
+    STATUS status = READY;               // need mutex
+    uint8_t sleeps = 0;                  // need mutex
     int core_id = -1;                    // take inspo from linux rahh // need mutex
 
     const uint64_t loc;
