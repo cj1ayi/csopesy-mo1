@@ -153,8 +153,7 @@ std::string Console::next_batch_name() {
 void Console::tick_loop() {
     while (running) {
         scheduler->tick();
-        ++ticks;
-        if (batch_enabled && ticks % config.batch_process_freq == 0) {
+        if (batch_enabled && scheduler->ticks % config.batch_process_freq == 0) {
             while (!spawn(next_batch_name())) {} // skip names already taken by "screen -s"
         }
         std::this_thread::sleep_for(TICK_INTERVAL);
