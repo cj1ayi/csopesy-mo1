@@ -12,7 +12,7 @@ const char *PROMPT = "root:\\> ";
 const char *CONFIG_PATH = "config.txt";
 const char *LOG_PATH = "csopesy-log.txt";
 
-const char *DEVELOPERS[] = {"Billones, Francis","Nacasabog, Joshua","Santiago, Juan Ramon","Tan, Roberta"}; 
+const char *DEVELOPERS[] = {"Billones, Francis", "Nacasabog, Joshua", "Santiago, Juan Ramon", "Tan, Roberta"};
 const char *LAST_UPDATED = "11-04-2026";
 
 std::vector<std::string> split(const std::string &line) {
@@ -91,9 +91,7 @@ void Console::initialize() {
     try {
         scheduler = std::make_unique<Scheduler>(Config::load(CONFIG_PATH));
         std::cout << "Initialized using " << CONFIG_PATH << ".\n";
-    } catch (const std::exception &e) {
-        std::cout << "Failed to initialize: " << e.what() << "\n";
-    }
+    } catch (const std::exception &e) { std::cout << "Failed to initialize: " << e.what() << "\n"; }
 }
 
 void Console::screen(const std::vector<std::string> &args) {

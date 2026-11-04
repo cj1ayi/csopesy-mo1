@@ -53,8 +53,8 @@ std::string Scheduler::status_report() {
     out << "Running processes:\n";
     for (const auto &process : processes) {
         if (process->status == TERMINATED || process->core_id == -1) continue;
-        out << std::left << std::setw(12) << process->name << format_time(process->created_at) << "    Core: "
-            << std::setw(6) << process->core_id << process->executes << " / " << process->loc << "\n";
+        out << std::left << std::setw(12) << process->name << format_time(process->created_at)
+            << "    Core: " << std::setw(6) << process->core_id << process->executes << " / " << process->loc << "\n";
     }
 
     out << "\nFinished processes:\n";

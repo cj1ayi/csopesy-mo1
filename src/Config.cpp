@@ -6,7 +6,7 @@
 #include <stdexcept>
 
 namespace {
-constexpr uint64_t U32_RANGE = 1ULL << 32; 
+constexpr uint64_t U32_RANGE = 1ULL << 32;
 
 std::string unquote(const std::string &s) {
     if (s.size() >= 2 && s.front() == '"' && s.back() == '"') return s.substr(1, s.size() - 2);
@@ -14,12 +14,15 @@ std::string unquote(const std::string &s) {
 }
 
 uint64_t parse_in_range(const std::string &key, const std::string &raw, const uint64_t lo, const uint64_t hi) {
-    bool all_digits = !raw.empty() && std::all_of(raw.begin(), raw.end(), [](unsigned char c) { return std::isdigit(c); });
-    if (!all_digits || raw.size() > 19) throw std::runtime_error(key + " must be a non-negative integer, got \"" + raw + "\"");
+    bool all_digits =
+        !raw.empty() && std::all_of(raw.begin(), raw.end(), [](unsigned char c) { return std::isdigit(c); });
+    if (!all_digits || raw.size() > 19)
+        throw std::runtime_error(key + " must be a non-negative integer, got \"" + raw + "\"");
 
     uint64_t value = std::stoull(raw);
     if (value < lo || value > hi)
-        throw std::runtime_error(key + " must be in [" + std::to_string(lo) + ", " + std::to_string(hi) + "], got " + raw);
+        throw std::runtime_error(key + " must be in [" + std::to_string(lo) + ", " + std::to_string(hi) + "], got " +
+                                 raw);
     return value;
 }
 } // namespace
@@ -51,7 +54,7 @@ Config Config::load(const std::string &path) {
             config.min_ins = parse_in_range(key, raw, 1, U32_RANGE);
         else if (key == "max-ins")
             config.max_ins = parse_in_range(key, raw, 1, U32_RANGE);
-        else if (key == "delay-per-exec" || key == "delays-per-exec") 
+        else if (key == "delay-per-exec" || key == "delays-per-exec")
             config.delay_per_exec = parse_in_range(key, raw, 0, U32_RANGE);
         else
             throw std::runtime_error("unknown config key \"" + key + "\"");

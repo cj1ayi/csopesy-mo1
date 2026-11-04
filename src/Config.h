@@ -5,7 +5,6 @@
 
 enum SCHEDULER_ALGORITHM { FCFS, RR };
 
-
 struct Config {
     uint32_t num_cpu = 4;
     SCHEDULER_ALGORITHM scheduler = RR;

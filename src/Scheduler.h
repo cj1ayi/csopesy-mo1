@@ -8,7 +8,6 @@
 #include <string>
 #include <vector>
 
-
 class Scheduler {
   public:
     explicit Scheduler(const Config &config);
