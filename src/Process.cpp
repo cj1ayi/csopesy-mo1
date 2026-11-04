@@ -1,4 +1,5 @@
 #include "Process.h"
+#include "Utils.h"
 #include <algorithm>
 #include <cassert>
 #include <chrono>
@@ -39,11 +40,13 @@ const Instruction *Process::fetch() {
 }
 
 void Process::execute(const Instruction &instruction) {
+    // guaranteed we have the mutex
     const auto &op = instruction.opcode;
     const auto &arg = instruction.argument;
     switch (op) {
         case PRINT: {
-            print_logs.push_back("Hello world from " + name + "!");
+            print_logs.push_back(format_time(std::chrono::system_clock::now()) + " Core:" + std::to_string(core_id) +
+                                 " \"Hello world from " + name + "!\"");
             break;
         }
         case DECLARE:
@@ -75,6 +78,7 @@ void Process::execute(const Instruction &instruction) {
 }
 
 STATUS Process::tick() {
+    std::lock_guard<std::mutex> lock(mtx);
     assert(status == READY);
     if (const Instruction *instruction = fetch()) {
         execute(*instruction);
