@@ -1,8 +1,10 @@
 #include "Console.h"
 
+#include <chrono>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -11,6 +13,9 @@ namespace {
 const char *PROMPT = "root:\\> ";
 const char *CONFIG_PATH = "config.txt";
 const char *LOG_PATH = "csopesy-log.txt";
+
+// nothing abt this in the spec...
+constexpr auto TICK_INTERVAL = std::chrono::microseconds(100);
 
 const char *DEVELOPERS[] = {"Billones, Francis", "Nacasabog, Joshua", "Santiago, Juan Ramon", "Tan, Roberta"};
 const char *LAST_UPDATED = "11-04-2026";
@@ -30,6 +35,11 @@ void clear_screen() {
 #endif
 }
 } // namespace
+
+Console::~Console() {
+    running = false;
+    if (tick_thread.joinable()) tick_thread.join();
+}
 
 void Console::run() {
     print_header();
@@ -55,10 +65,10 @@ void Console::run() {
         if (command == "screen")
             screen(args);
         else if (command == "scheduler-start") {
-            // TODO: start generating batch processes
+            batch_enabled = true;
             std::cout << "Scheduler started generating processes.\n";
         } else if (command == "scheduler-stop") {
-            // TODO: stop generating batch processes
+            batch_enabled = false;
             std::cout << "Scheduler stopped generating processes.\n";
         } else if (command == "report-util")
             report_util();
@@ -89,7 +99,12 @@ void Console::initialize() {
     }
 
     try {
-        process_manager = std::make_unique<ProcessManager>(Config::load(CONFIG_PATH));
+        config = Config::load(CONFIG_PATH);
+        process_manager = std::make_unique<ProcessManager>(config);
+        scheduler = make_scheduler(config);
+
+        running = true;
+        tick_thread = std::thread(&Console::tick_loop, this);
         std::cout << "Initialized using " << CONFIG_PATH << ".\n";
     } catch (const std::exception &e) { std::cout << "Failed to initialize: " << e.what() << "\n"; }
 }
@@ -107,7 +122,7 @@ void Console::screen(const std::vector<std::string> &args) {
 
     const auto &name = args[2];
     if (args[1] == "-s") {
-        auto process = process_manager->create_process(name);
+        auto process = spawn(name);
         if (!process)
             std::cout << "Process " << name << " already exists.\n";
         else
@@ -118,6 +133,29 @@ void Console::screen(const std::vector<std::string> &args) {
             std::cout << "Process " << name << " not found.\n";
         else
             attach(process);
+    }
+}
+
+std::shared_ptr<Process> Console::spawn(const std::string &name) {
+    auto process = process_manager->create_process(name);
+    if (process) scheduler->add(process);
+    return process;
+}
+
+std::string Console::next_batch_name() {
+    std::ostringstream name;
+    name << "p" << std::setw(2) << std::setfill('0') << ++batch_count;
+    return name.str();
+}
+
+void Console::tick_loop() { 
+    while (running) {
+        scheduler->tick();
+        ++ticks;
+        if (batch_enabled && ticks % config.batch_process_freq == 0) {
+            while (!spawn(next_batch_name())) {} // skip names already taken by "screen -s"
+        }
+        std::this_thread::sleep_for(TICK_INTERVAL);
     }
 }
 
