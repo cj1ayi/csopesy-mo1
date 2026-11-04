@@ -11,7 +11,6 @@
 
 struct Core {
     std::shared_ptr<Process> process; // nullptr when idle
-    uint64_t busywait_left = 0;       // ticks left before the next instruction
     uint64_t ticks = 0;               // ticks spent in the current time slice
 };
 

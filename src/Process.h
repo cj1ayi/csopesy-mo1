@@ -36,6 +36,8 @@ class Process {
     const uint64_t loc;
     uint64_t executes = 0; // need mutex
 
+    uint64_t busywait_left = 0;
+
     const std::chrono::system_clock::time_point created_at = std::chrono::system_clock::now();
 
     Process(int pid, std::string name, std::vector<Instruction> instructions);
