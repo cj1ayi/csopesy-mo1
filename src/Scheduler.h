@@ -24,5 +24,6 @@ class Scheduler {
     Config config;
     ProgramGenerator generator;
     std::vector<std::shared_ptr<Process>> processes;
+    std::unordered_map<std::string, std::shared_ptr<Process>> name_to_process;
     int next_pid = 1;
 };

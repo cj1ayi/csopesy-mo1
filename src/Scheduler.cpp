@@ -30,12 +30,13 @@ std::shared_ptr<Process> Scheduler::create_process(const std::string &name) {
 
     auto process = std::make_shared<Process>(next_pid++, name, generator.generate());
     processes.push_back(process);
+    name_to_process[name] = process;
     return process;
 }
 
 std::shared_ptr<Process> Scheduler::find_process(const std::string &name) {
-    for (const auto &process : processes)
-        if (process->name == name && process->status != TERMINATED) return process;
+    auto it = name_to_process.find(name);
+    if (it != name_to_process.end() && it->second->status != TERMINATED) { return it->second; }
     return nullptr;
 }
 
