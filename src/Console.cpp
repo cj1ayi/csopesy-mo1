@@ -1,5 +1,7 @@
 #include "Console.h"
 
+#include "Utils.h"
+
 #include <chrono>
 #include <cstdlib>
 #include <filesystem>
@@ -111,7 +113,7 @@ void Console::initialize() {
 
 void Console::screen(const std::vector<std::string> &args) {
     if (args.size() == 2 && args[1] == "-ls") {
-        std::cout << process_manager->status_report();
+        std::cout << status_report();
         return;
     }
 
@@ -148,7 +150,7 @@ std::string Console::next_batch_name() {
     return name.str();
 }
 
-void Console::tick_loop() { 
+void Console::tick_loop() {
     while (running) {
         scheduler->tick();
         ++ticks;
@@ -159,13 +161,48 @@ void Console::tick_loop() {
     }
 }
 
+std::string Console::status_report() {
+    std::vector<ProcessSnapshot> snapshot;
+    {
+        auto paused = scheduler->pause();
+        snapshot = process_manager->snapshot();
+    }
+    return format_status_report(snapshot); // formatting doesn't hold up the ticks
+}
+
+std::string Console::format_status_report(const std::vector<ProcessSnapshot> &snapshot) const {
+    uint32_t cores_used = 0;
+    std::ostringstream running, finished;
+    for (const auto &row : snapshot) {
+        const auto &process = row.process;
+        if (row.status == TERMINATED) {
+            finished << std::left << std::setw(12) << process->name << format_time(process->created_at)
+                     << "    Finished    " << row.executes << " / " << process->loc << "\n";
+        } else if (row.core_id != -1) {
+            ++cores_used;
+            running << std::left << std::setw(12) << process->name << format_time(process->created_at)
+                    << "    Core: " << std::setw(6) << row.core_id << row.executes << " / " << process->loc << "\n";
+        }
+    }
+
+    std::ostringstream out;
+    out << "CPU utilization: " << (cores_used * 100 / config.num_cpu) << "%\n";
+    out << "Cores used: " << cores_used << "\n";
+    out << "Cores available: " << (config.num_cpu - cores_used) << "\n\n";
+    out << "----------------------------------------\n";
+    out << "Running processes:\n" << running.str();
+    out << "\nFinished processes:\n" << finished.str();
+    out << "----------------------------------------\n";
+    return out.str();
+}
+
 void Console::report_util() {
     std::ofstream log(LOG_PATH);
     if (!log) {
         std::cout << "Could not write " << LOG_PATH << "\n";
         return;
     }
-    log << process_manager->status_report();
+    log << status_report();
     std::cout << "Report generated at " << std::filesystem::absolute(LOG_PATH).string() << "!\n";
 }
 

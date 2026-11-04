@@ -8,10 +8,13 @@ void Scheduler::add(const std::shared_ptr<Process> &process) {
 }
 
 void Scheduler::tick() {
+    std::lock_guard<std::mutex> lock(tick_mtx);
     wake_sleepers();
     run_cores();
     dispatch();
 }
+
+std::unique_lock<std::mutex> Scheduler::pause() { return std::unique_lock<std::mutex>(tick_mtx); }
 
 void Scheduler::wake_sleepers() {
     for (size_t remaining = sleeping.size(); remaining > 0; --remaining) {

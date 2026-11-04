@@ -36,6 +36,8 @@ class Console {
     void initialize();
     void screen(const std::vector<std::string> &args);
     void report_util();
+    std::string status_report(); // shared by screen -ls and report-util
+    std::string format_status_report(const std::vector<ProcessSnapshot> &snapshot) const;
 
     void attach(const std::shared_ptr<Process> &process);
     void print_process_smi(const Process &process);
