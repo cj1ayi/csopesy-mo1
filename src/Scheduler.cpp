@@ -9,6 +9,7 @@ void Scheduler::add(const std::shared_ptr<Process> &process) {
 
 void Scheduler::tick() {
     std::lock_guard<std::mutex> lock(tick_mtx);
+    ++ticks;
     wake_sleepers();
     run_cores();
     dispatch();
@@ -17,22 +18,17 @@ void Scheduler::tick() {
 std::unique_lock<std::mutex> Scheduler::pause() { return std::unique_lock<std::mutex>(tick_mtx); }
 
 void Scheduler::wake_sleepers() {
-    for (size_t remaining = sleeping.size(); remaining > 0; --remaining) {
-        auto process = sleeping.front();
-        sleeping.pop();
+    auto wheel_pos = ticks % sleep_wheel.size();
 
-        bool awake;
+    auto &wake_now = sleep_wheel[wheel_pos];
+    for (const auto &process : wake_now) {
         {
             std::lock_guard<std::mutex> lock(process->mtx);
-            awake = --process->sleeps == 0;
-            if (awake) process->status = READY;
+            process->status = READY;
         }
-
-        if (awake)
-            add(process);
-        else
-            sleeping.push(process);
+        add(process);
     }
+    wake_now.clear();
 }
 
 void Scheduler::run_cores() {
@@ -53,7 +49,7 @@ void Scheduler::run_cores() {
             release(core);
         } else if (status == SLEEPING) {
             release(core);
-            sleeping.push(process);
+            sleep_wheel[(ticks + process->sleeps) % sleep_wheel.size()].push_back(process);
         } else if (should_preempt(core)) {
             release(core);
             add(process);
