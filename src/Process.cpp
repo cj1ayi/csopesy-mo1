@@ -40,6 +40,7 @@ const Instruction *Process::fetch() {
 }
 
 void Process::execute(const Instruction &instruction) {
+    // guaranteed we have the mutex
     const auto &op = instruction.opcode;
     const auto &arg = instruction.argument;
     switch (op) {
@@ -77,6 +78,7 @@ void Process::execute(const Instruction &instruction) {
 }
 
 STATUS Process::tick() {
+    std::lock_guard<std::mutex> lock(mtx);
     assert(status == READY);
     if (const Instruction *instruction = fetch()) {
         execute(*instruction);

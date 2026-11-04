@@ -153,16 +153,25 @@ void Console::attach(const std::shared_ptr<Process> &process) {
 }
 
 void Console::print_process_smi(const Process &process) {
+    std::vector<std::string> print_logs;
+    STATUS status;
+    uint64_t executes;
+    {
+        std::lock_guard<std::mutex> lock(process.mtx);
+        print_logs = process.print_logs;
+        status = process.status;
+        executes = process.executes;
+    }
     std::cout << "\nProcess name: " << process.name << "\n";
     std::cout << "ID: " << process.pid << "\n";
     std::cout << "Logs:\n";
-    for (const auto &log : process.print_logs) std::cout << log << "\n";
+    for (const auto &log : print_logs) std::cout << log << "\n";
     std::cout << "\n";
 
-    if (process.status == TERMINATED)
+    if (status == TERMINATED)
         std::cout << "Finished!\n\n";
     else {
-        std::cout << "Current instruction line: " << process.executes << "\n";
+        std::cout << "Current instruction line: " << executes << "\n";
         std::cout << "Lines of code: " << process.loc << "\n\n";
     }
 }

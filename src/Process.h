@@ -4,6 +4,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include <mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -27,16 +28,18 @@ class Process {
   public:
     int pid;
     std::string name;
-    std::vector<std::string> print_logs;
-    STATUS status;
-    uint8_t sleeps;
-    int core_id = -1; // take inspo from linux rahh
+    std::vector<std::string> print_logs; // need mutex
+    STATUS status;                       // need mutex
+    uint8_t sleeps;                      // need mutex
+    int core_id = -1;                    // take inspo from linux rahh // need mutex
 
     const uint64_t loc;
-    uint64_t executes = 0;
+    uint64_t executes = 0; // need mutex
 
     const std::chrono::system_clock::time_point created_at = std::chrono::system_clock::now();
 
     Process(int pid, std::string name, std::vector<Instruction> instructions);
     STATUS tick();
+
+    mutable std::mutex mtx;
 };

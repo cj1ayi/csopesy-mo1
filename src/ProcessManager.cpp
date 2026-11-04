@@ -26,37 +26,48 @@ std::shared_ptr<Process> ProcessManager::find_process(const std::string &name) {
 std::shared_ptr<Process> ProcessManager::_find_process(const std::string &name) {
     auto it = name_to_process.find(name);
 
-    if (it == name_to_process.end() || it->second->status == TERMINATED) return nullptr;
+    if (it == name_to_process.end()) { return nullptr; }
 
-    return it->second;
+    auto p = it->second;
+    std::lock_guard<std::mutex> lock(p->mtx);
+    if (p->status == TERMINATED) return nullptr;
+
+    return p;
 }
 
 std::string ProcessManager::status_report() {
     std::lock_guard<std::mutex> lock(mtx);
 
     uint32_t cores_used = 0;
-    for (const auto &process : processes)
-        if (process->status != TERMINATED && process->core_id != -1) ++cores_used;
+    std::ostringstream running, finished;
+    for (const auto &process : processes) {
+        STATUS status;
+        int core_id;
+        uint64_t executes;
+        {
+            std::lock_guard<std::mutex> process_lock(process->mtx);
+            status = process->status;
+            core_id = process->core_id;
+            executes = process->executes;
+        }
+
+        if (status == TERMINATED) {
+            finished << std::left << std::setw(12) << process->name << format_time(process->created_at)
+                     << "    Finished    " << executes << " / " << process->loc << "\n";
+        } else if (core_id != -1) {
+            ++cores_used;
+            running << std::left << std::setw(12) << process->name << format_time(process->created_at)
+                    << "    Core: " << std::setw(6) << core_id << executes << " / " << process->loc << "\n";
+        }
+    }
 
     std::ostringstream out;
     out << "CPU utilization: " << (cores_used * 100 / config.num_cpu) << "%\n";
     out << "Cores used: " << cores_used << "\n";
     out << "Cores available: " << (config.num_cpu - cores_used) << "\n\n";
     out << "----------------------------------------\n";
-
-    out << "Running processes:\n";
-    for (const auto &process : processes) {
-        if (process->status == TERMINATED || process->core_id == -1) continue;
-        out << std::left << std::setw(12) << process->name << format_time(process->created_at)
-            << "    Core: " << std::setw(6) << process->core_id << process->executes << " / " << process->loc << "\n";
-    }
-
-    out << "\nFinished processes:\n";
-    for (const auto &process : processes) {
-        if (process->status != TERMINATED) continue;
-        out << std::left << std::setw(12) << process->name << format_time(process->created_at) << "    Finished    "
-            << process->executes << " / " << process->loc << "\n";
-    }
+    out << "Running processes:\n" << running.str();
+    out << "\nFinished processes:\n" << finished.str();
     out << "----------------------------------------\n";
     return out.str();
 }
