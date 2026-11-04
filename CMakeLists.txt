@@ -16,5 +16,6 @@ add_executable(csopesy
     src/Process.cpp
     src/Instruction.cpp
     src/ProgramGenerator.cpp
+    src/Utils.cpp
 )
 target_link_libraries(csopesy PRIVATE Threads::Threads)
