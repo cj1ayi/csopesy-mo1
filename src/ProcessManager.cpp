@@ -36,11 +36,15 @@ std::shared_ptr<Process> ProcessManager::_find_process(const std::string &name) 
 }
 
 std::string ProcessManager::status_report() {
-    std::lock_guard<std::mutex> lock(mtx);
+    std::vector<std::shared_ptr<Process>> snapshot;
+    {
+        std::lock_guard<std::mutex> lock(mtx);
+        snapshot = processes;
+    }
 
     uint32_t cores_used = 0;
     std::ostringstream running, finished;
-    for (const auto &process : processes) {
+    for (const auto &process : snapshot) {
         STATUS status;
         int core_id;
         uint64_t executes;
