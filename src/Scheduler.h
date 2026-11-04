@@ -28,6 +28,8 @@ class Scheduler {
     // no tick runs while the returned lock is held, so process state stays consistent across processes
     std::unique_lock<std::mutex> pause();
 
+    uint64_t ticks = 0;
+
   protected:
     const Config config;
 
@@ -38,7 +40,6 @@ class Scheduler {
     std::queue<std::shared_ptr<Process>> ready;
     std::array<std::vector<std::shared_ptr<Process>>, std::numeric_limits<decltype(Argument::sleep_arg)>::max()>
         sleep_wheel; // indexed by wake-up tick % WHEEL_SIZE
-    uint64_t ticks = 0;
     std::mutex ready_mtx;
     std::mutex tick_mtx;
 

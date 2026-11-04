@@ -25,7 +25,6 @@ class Console {
     std::thread tick_thread; // runs from "initialize" until exit
     std::atomic<bool> running{false};
     std::atomic<bool> batch_enabled{false};
-    uint64_t ticks = 0;       // only touched by tick_thread
     uint64_t batch_count = 0; // only touched by tick_thread
 
     std::shared_ptr<Process> spawn(const std::string &name);
