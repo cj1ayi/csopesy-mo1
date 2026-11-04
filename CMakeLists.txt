@@ -13,6 +13,7 @@ add_executable(csopesy
     src/Console.cpp
     src/Config.cpp
     src/ProcessManager.cpp
+    src/Scheduler.cpp
     src/Process.cpp
     src/Instruction.cpp
     src/ProgramGenerator.cpp
