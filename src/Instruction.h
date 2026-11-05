@@ -11,6 +11,10 @@ struct Instruction;
 // one struct to rule them all
 // hacky/cheesy/inefficient lol but simple
 struct Argument {
+    // PRINT
+    std::string msg;                   // C-style format string, e.g. "x = %d, y = %04x"
+    std::vector<std::string> msg_vars; // variables consumed by msg's conversions, in order
+
     // DECLARE
     std::string var_name;
     uint16_t value = 0;

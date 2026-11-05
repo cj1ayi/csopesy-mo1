@@ -45,8 +45,12 @@ void Process::execute(const Instruction &instruction) {
     const auto &arg = instruction.argument;
     switch (op) {
         case PRINT: {
+            std::vector<uint16_t> values;
+            values.reserve(arg.msg_vars.size());
+            for (const auto &var : arg.msg_vars) values.push_back(variables[var]);
+
             print_logs.push_back(format_time(std::chrono::system_clock::now()) + " Core:" + std::to_string(core_id) +
-                                 " \"Hello world from " + name + "!\"");
+                                 " \"" + format_c(arg.msg, values) + "\"");
             break;
         }
         case DECLARE:

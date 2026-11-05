@@ -7,7 +7,7 @@ std::shared_ptr<Process> ProcessManager::create_process(const std::string &name)
 
     if (_find_process(name)) return nullptr;
 
-    auto process = std::make_shared<Process>(next_pid++, name, generator.generate());
+    auto process = std::make_shared<Process>(next_pid++, name, generator.generate(name));
     processes.push_back(process);
     name_to_process[name] = process;
     return process;
